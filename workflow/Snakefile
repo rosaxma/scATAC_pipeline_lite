@@ -1,0 +1,143 @@
+import os
+from snakemake.utils import min_version
+
+min_version("6.6.1")
+
+configfile: 
+    "config/config.yaml"
+
+with open("config/samples.tsv") as sample_file:
+    h = sample_file.readline().rstrip('\n').split('\t')
+    sample_ind = h.index("Sample")
+    splits_ind = h.index("Splits")
+    path_ind = h.index("Path")
+    samples = []
+    sample_data = {}
+    for line in sample_file:
+        if line.startswith("#"):
+            continue
+        entries = line.rstrip('\n').split('\t')
+        sample = entries[sample_ind]
+        splits = entries[splits_ind].split(",")
+        path_template = os.path.join(config["input_dir"], entries[path_ind])
+        samples.append(sample)
+        sample_data[sample] = (splits, path_template)
+        
+workdir: 
+    config['workdir']
+
+max_threads = config["max_threads_per_rule"]
+
+def script_path(script_name):
+    return str(workflow.source_path(script_name))
+
+include:
+    "rules/chromap.smk"
+include:
+    "rules/fragments.smk"
+
+rule all:
+    """
+    Generate all outputs (default)
+    """
+    input: 
+        expand(os.path.join(config["output_dir"], "{sample}/alignments_sorted.bam"), sample=samples),
+        expand(os.path.join(config["output_dir"], "{sample}/fragments.tsv.gz"), sample=samples),
+        expand(os.path.join(config["output_dir"], "{sample}/fragments.tsv.gz.tbi"), sample=samples)
+
+def fetch_fastq(w):
+    read_name = config["read_names"][w.read]
+    splits, path_template = sample_data[w.sample]
+    fastqs = [path_template.format(split=s, read=read_name) for s in splits]
+    return fastqs
+
+rule organize_fastqs:
+    """
+    Concatenate and organize input FASTQs
+    """
+    input:
+        fetch_fastq
+    output:
+        "fastqs/{sample}/{read}.fastq.gz"
+    resources:
+        mem_mb = 1000,
+        runtime_min = 360
+    conda:
+        "envs/fetch.yaml"
+    shell:
+        "zcat {input} | gzip -c > {output}"
+
+rule fetch_whitelist:
+    """
+    Fetch barcode whitelist
+    """
+    output:
+        "bc_whitelist.txt"
+    params:
+        url = config["whitelist_paths"][config["whitelist_choice"]],
+        prefix = config["bc_prefix"],
+        suffix = config["bc_suffix"],
+        rc_command = "tr ACGTacgt TGCAtgca | rev | " if config["bc_revcomp"] else ""
+    resources:
+        mem_mb = 1000
+    conda:
+        "envs/fetch.yaml"
+    shell:
+        "curl --no-progress-meter -L {params.url} | zcat | {params.rc_command} | "
+        "sed -e 's/^/{params.prefix}/' -e 's/$/{params.suffix}/' > {output}"
+
+rule fetch_genome:
+    """
+    Fetch genome FASTA
+    """
+    output:
+        "genomes/genome.fasta.gz"
+    params:
+        url = config["genome"]
+    resources:
+        mem_mb = 1000
+    conda:
+        "envs/fetch.yaml"
+    shell:
+        "curl --no-progress-meter -L {params.url} > {output}"
+
+rule organize_output_bams:
+    """
+    Organize output BAM files
+    """
+    input:
+        "results/{sample}/alignments_sorted.bam"
+    output:
+        os.path.join(config["output_dir"], "{sample}/alignments_sorted.bam")
+    params:
+        url = config["genome"]
+    resources:
+        mem_mb = 1000,
+        runtime_min = 480
+    conda:
+        "envs/fetch.yaml"
+    shell:
+        "mkdir -p `dirname {input}`; "
+        "cp {input} {output}"
+
+rule organize_output_fragments:
+    """
+    Organize output fragment files
+    """
+    input:
+        frag = "results/{sample}/fragments.tsv.gz",
+        frag_ind = "results/{sample}/fragments.tsv.gz.tbi"
+    output:
+        frag = os.path.join(config["output_dir"], "{sample}/fragments.tsv.gz"),
+        frag_ind = os.path.join(config["output_dir"], "{sample}/fragments.tsv.gz.tbi")
+    params:
+        url = config["genome"]
+    resources:
+        mem_mb = 1000,
+        runtime_min = 480
+    conda:
+        "envs/fetch.yaml"
+    shell:
+        "mkdir -p `dirname {input}`; "
+        "cp {input.frag} {output.frag}; "
+        "cp {input.frag_ind} {output.frag_ind}"
