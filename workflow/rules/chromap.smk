@@ -29,7 +29,7 @@ rule chromap:
         ref = "genomes/genome.fasta.gz",
         index = "genomes/genome.index"
     output:
-        "results/{sample}/chromap/alignments_unsorted.bam"
+        "results/{sample}/chromap/alignments_raw.bam"
     params:
         barcode_dist = lambda w: config["max_barcode_dist"],
         multimapping = config["multimapping"]
@@ -49,10 +49,10 @@ rule chromap:
 
 rule collate_alignments:
     """
-    Run fixmate on alignments
+    Collate alignments
     """
     input:
-        "results/{sample}/chromap/alignments_unsorted.bam"
+        "results/{sample}/chromap/alignments_raw.bam"
     output:
         "results/{sample}/chromap/alignments_collated.bam"
     threads:
