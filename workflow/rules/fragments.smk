@@ -1,3 +1,38 @@
+rule filter_mito:
+    """
+    Filter and count mitochondrial reads (and also fiter out secondary alignments)
+    """
+    input: 
+        lambda w: f"results/{w.sample}/{config['aligner']}/alignments_map_out.bam"
+    output: 
+        bam = "results/{sample}/alignments_no_mito.bam",
+        qc = "results/{sample}/frac_mito.tsv"
+    params:
+        mitochr = lambda w: config["mito_chr"]
+    resources:
+        mem_mb = 1000
+    conda:
+        "../envs/chromap.yaml"
+    script:
+        "../scripts/filter_mito.py"
+
+rule sort_alignments:
+    """
+    Sort alignments
+    """
+    input:
+        "results/{sample}/alignments_no_mito.bam"
+    output:
+        "results/{sample}/alignments_sorted.bam"
+    threads:
+        max_threads
+    resources:
+        runtime_min = 480
+    conda:
+        "../envs/fragments.yaml"
+    shell:
+        "samtools sort -@ {threads} -o {output} {input}"
+
 rule bam_to_fragments: 
     """
     Convert BAM to fragment file

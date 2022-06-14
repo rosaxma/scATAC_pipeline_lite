@@ -48,6 +48,7 @@ mito_chr: chrM
 #######
 
 # Maximum hamming distance to tolerate between observed and whitelisted barcode
+# Can be 0, 1, or 2, with recommended default being 1
 max_barcode_dist: 1
 
 # URLs of barcode whitelists
@@ -70,6 +71,20 @@ whitelist_revcomp: True
 # For no prefix/suffix, use an empty string ''
 bc_prefix: ''
 bc_suffix: GTGTAGAT
+
+#######
+# Aligner Settings
+#######
+
+# Aligner to use
+# One of "chromap" or "bwt2"
+# Chromap is significantly faster but is more memory-intensive
+aligner: chromap
+
+# Maximum number of locations a read can map to
+# We recommend keeping multi-mapping reads to improve discovery
+# Default is 4
+multimapping: 4
 
 #######
 # Fragment File Settings

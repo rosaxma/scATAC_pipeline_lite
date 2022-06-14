@@ -65,7 +65,7 @@ rule organize_fastqs:
     conda:
         "envs/fetch.yaml"
     shell:
-        "zcat {input} | gzip -c > {output}"
+        "zcat -f {input} | gzip -c > {output}"
 
 rule fetch_whitelist:
     """
@@ -91,7 +91,7 @@ rule fetch_genome:
     Fetch genome FASTA
     """
     output:
-        "genomes/genome.fasta.gz"
+        "genomes/genome.fa"
     params:
         url = config["genome"]
     resources:
@@ -99,7 +99,7 @@ rule fetch_genome:
     conda:
         "envs/fetch.yaml"
     shell:
-        "curl --no-progress-meter -L {params.url} > {output}"
+        "curl --no-progress-meter -L {params.url} | zcat -f > {output}"
 
 rule organize_output_bams:
     """
