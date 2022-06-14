@@ -34,6 +34,8 @@ def script_path(script_name):
 include:
     "rules/chromap.smk"
 include:
+    "rules/bowtie.smk"
+include:
     "rules/fragments.smk"
 
 rule all:
