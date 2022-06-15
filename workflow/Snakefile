@@ -9,7 +9,7 @@ configfile:
 with open("config/samples.tsv") as sample_file:
     h = sample_file.readline().rstrip('\n').split('\t')
     sample_ind = h.index("Sample")
-    splits_ind = h.index("Splits")
+    lanes_ind = h.index("Lanes")
     path_ind = h.index("Path")
     samples = []
     sample_data = {}
@@ -18,10 +18,10 @@ with open("config/samples.tsv") as sample_file:
             continue
         entries = line.rstrip('\n').split('\t')
         sample = entries[sample_ind]
-        splits = entries[splits_ind].split(",")
+        lanes = entries[lanes_ind].split(",")
         path_template = os.path.join(config["input_dir"], entries[path_ind])
         samples.append(sample)
-        sample_data[sample] = (splits, path_template)
+        sample_data[sample] = (lanes, path_template)
         
 workdir: 
     config['workdir']
@@ -49,8 +49,8 @@ rule all:
 
 def fetch_fastq(w):
     read_name = config["read_names"][w.read]
-    splits, path_template = sample_data[w.sample]
-    fastqs = [path_template.format(split=s, read=read_name) for s in splits]
+    lanes, path_template = sample_data[w.sample]
+    fastqs = [path_template.format(lane=l, read=read_name) for l in lanes]
     return fastqs
 
 rule organize_fastqs:

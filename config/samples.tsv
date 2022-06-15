@@ -1,12 +1,12 @@
 # This file specifies the samples in the dataset
 # 'Sample': the name of the sample
-# 'Splits': a list of names indicating the different FASTQs in a sample
+# 'Lane': a list of names indicating the different sequencing lanes in a sample
 #    The input FASTQs will be concatenated in this order
 # 'Path': a path template for an input fastq
 #    This path is relative to `input_dir` in config.yaml
-#    {split} is expanded by the names enumerated in the Splits column
+#    {lane} is expanded by the names enumerated in the Splits column
 #    {read} is expanded by the `read_names` in config.yaml
-Sample	Splits	Path
-1055R	L001,L002,L003,L004	1055R/1055R_S1_{split}_{read}_001.fastq.gz
-1082R	L001,L002,L003,L004	1082R/1082R_S2_{split}_{read}_001.fastq.gz
-1098R	L001,L002,L003,L004	1098R/1098R_S3_{split}_{read}_001.fastq.gz
+Sample	Lanes	Path
+1055R	L001,L002,L003,L004	1055R/1055R_S1_{lane}_{read}_001.fastq.gz
+1082R	L001,L002,L003,L004	1082R/1082R_S2_{lane}_{read}_001.fastq.gz
+1098R	L001,L002,L003,L004	1098R/1098R_S3_{lane}_{read}_001.fastq.gz

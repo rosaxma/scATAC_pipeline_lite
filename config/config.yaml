@@ -53,8 +53,8 @@ max_barcode_dist: 1
 
 # URLs of barcode whitelists
 whitelist_paths:
-  10x: /srv/www/kundaje/atwang/atac_whitelists/737K-cratac-v1.txt.gz
-  multiome: /srv/www/kundaje/atwang/atac_whitelists/737K-arc-v1.txt.gz
+  10x: http://mitra.stanford.edu/kundaje/atwang/atac_whitelists/737K-cratac-v1.txt.gz
+  multiome: http://mitra.stanford.edu/kundaje/atwang/atac_whitelists/737K-arc-v1.txt.gz
 
 # Barcode whitelist to use for dataset
 whitelist_choice: 10x
