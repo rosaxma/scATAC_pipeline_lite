@@ -7,6 +7,5 @@
 #    {split} is expanded by the names enumerated in the Splits column
 #    {read} is expanded by the `read_names` in config.yaml
 Sample	Splits	Path
-1055R	L001,L002,L003,L004	1055R/1055R_S1_{split}_{read}_001.fastq.gz
-1082R	L001,L002,L003,L004	1082R/1082R_S2_{split}_{read}_001.fastq.gz
-1098R	L001,L002,L003,L004	1098R/1098R_S3_{split}_{read}_001.fastq.gz
+hft_w24_p6_r4-200205_NB551514_0373_AH5YCMBGXF	L001,L002,L003,L004	hft_w24_p6_r4/200205_NB551514_0373_AH5YCMBGXF/hft_w24_p6_r4_S8_{split}_{read}_001.fastq.gz
+hft_w24_p6_r4-200309_A00564_0203_AHM5W7DMXX_novogene	L001,L002	hft_w24_p6_r4/200309_A00564_0203_AHM5W7DMXX_novogene/hft_w24_p6_r4_S14_{split}_{read}_001.fastq.gz
