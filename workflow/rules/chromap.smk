@@ -30,7 +30,7 @@ rule chromap:
         index = "genomes/genome.index"
     output:
         bam = "results/{sample}/chromap/alignments_raw.bam",
-        fifo = temp("tmp/{sample}/chromap.pipe")
+        fifo = temp("results/{sample}/chromap/map.pipe")
     params:
         barcode_dist = lambda w: config["max_barcode_dist"],
         multimapping = config["multimapping"]
