@@ -79,7 +79,7 @@ rule fetch_whitelist:
         url = config["whitelist_paths"][config["whitelist_choice"]],
         prefix = config["bc_prefix"],
         suffix = config["bc_suffix"],
-        rc_command = "tr ACGTacgt TGCAtgca | rev | " if config["bc_revcomp"] else ""
+        rc_command = "tr ACGTacgt TGCAtgca | rev " if config["bc_revcomp"] else ""
     resources:
         mem_mb = 1000
     conda:
