@@ -69,7 +69,7 @@ rule organize_fastqs:
     conda:
         "envs/fetch.yaml"
     shell:
-        "zcat -f {input} | gzip -c > {output}"
+        "zcat -f {input} | sed 's/ .*//' | gzip -c > {output}"
 
 rule fetch_whitelist:
     """
