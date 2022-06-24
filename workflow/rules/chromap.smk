@@ -22,9 +22,9 @@ rule chromap:
     Run Chromap
     """
     input:
-        fastq_1 = "fastqs/{sample}/chromap/r1.fastq.gz",
-        fastq_2 = "fastqs/{sample}/chromap/r2.fastq.gz",
-        fastq_bc = "fastqs/{sample}/chromap/bc.fastq.gz",
+        fastq_1 = "fastqs/{sample}/r1.fastq.gz",
+        fastq_2 = "fastqs/{sample}/r2.fastq.gz",
+        fastq_bc = "fastqs/{sample}/bc.fastq.gz",
         wl = "bc_whitelist.txt",
         ref = "genomes/genome.fasta.gz",
         index = "genomes/genome.index"
