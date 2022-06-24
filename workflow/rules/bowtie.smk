@@ -12,8 +12,7 @@ rule match_barcodes:
         fastq2_bc = "results/{sample}/bwt2/R2_bc_full.fastq.gz",
         qc_matching = "results/{sample}/bwt2/barcode_matching_full.tsv"
     params:
-        barcode_dist = lambda w: config["max_barcode_dist"],
-        modality = lambda w: sample_data[w.sample]["modality"]
+        barcode_dist = lambda w: config["max_barcode_dist"]
     threads:
         max_threads
     resources:

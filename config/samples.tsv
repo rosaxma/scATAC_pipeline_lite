@@ -7,4 +7,4 @@
 #    {lane} is expanded by the names enumerated in the Lanes column
 #    {read} is expanded by the `read_names` in config.yaml
 Sample	Lanes	Paths
-1055R	L001,L002,L003,L004	1055R/1055R_S1_{lane}_{read}_001.fastq.gz
+iPSC	L001	iPSC/H1_S1_{lane}_{read}_001.fastq.gz
