@@ -34,7 +34,8 @@ rule chromap:
         barcode_dist = lambda w: config["max_barcode_dist"],
         multimapping = config["multimapping"]
     log:
-        chromap = "logs/{sample}/chromap/chromap.log"
+        chromap = "logs/{sample}/chromap/chromap.log",
+        fifo = "tmp/{sample}/chromap.pipe"
     threads:
         max_threads
     resources:
@@ -42,11 +43,12 @@ rule chromap:
     conda:
         "../envs/chromap.yaml"
     shell:
+        "mkfifo {log.fifo}; "
+        "samtools view -b -S -o {output} {log.fifo} & "
         "chromap --preset atac --SAM --drop-repetitive-reads {params.multimapping} -q 0 --trim-adapters -t {threads} --bc-error-threshold {params.barcode_dist} "
         "-x {input.index} -r {input.ref} -1 {input.fastq_1} -2 {input.fastq_2} -o /dev/stdout -b {input.fastq_bc} --barcode-whitelist {input.wl} 2> "
-        # "{log.chromap} | "
-        # "samtools view -b -S -o {output} -"
-        "{log.chromap}  "
+        "{log.chromap}"
+        
 
 rule collate_alignments:
     """
