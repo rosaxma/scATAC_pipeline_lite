@@ -8,7 +8,7 @@ def read_barcodes(path):
 
     return bc
 
-def match_bc(fastqs, whitelist, max_barcode_dist, offsets, fastq1_out_path, fastq2_out_path, qc_path, threads):
+def match_bc(fastqs, whitelist, max_barcode_dist, fastq1_out_path, fastq2_out_path, qc_path, threads):
     f = matcha.FastqReader(threads = threads)
     f.add_sequence("R1", fastqs["R1"], output_path=fastq1_out_path)
     f.add_sequence("R2", fastqs["R2"])
@@ -21,7 +21,7 @@ def match_bc(fastqs, whitelist, max_barcode_dist, offsets, fastq1_out_path, fast
         max_mismatches=max_barcode_dist,
         subsequence_count=2
     )
-    f.add_barcode("cell", cell_barcode, "R2", match_start=offsets["R2"])
+    f.add_barcode("cell", cell_barcode, "R2")
     f.set_output_names("{read_name} CB:Z:{cell}")
 
     barcode_counts = np.zeros(max_barcode_dist + 2, int)

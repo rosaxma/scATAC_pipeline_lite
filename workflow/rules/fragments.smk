@@ -12,7 +12,7 @@ rule filter_mito:
     resources:
         mem_mb = 1000
     conda:
-        "../envs/chromap.yaml"
+        "../envs/fragments.yaml"
     script:
         "../scripts/filter_mito.py"
 

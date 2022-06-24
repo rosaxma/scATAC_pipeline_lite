@@ -22,19 +22,20 @@ rule chromap:
     Run Chromap
     """
     input:
-        fastq_1 = "fastqs/{sample}/chromap/r1.fastq.gz",
-        fastq_2 = "fastqs/{sample}/chromap/r2.fastq.gz",
-        fastq_bc = "fastqs/{sample}/chromap/bc.fastq.gz",
+        fastq_1 = "fastqs/{sample}/r1.fastq.gz",
+        fastq_2 = "fastqs/{sample}/r2.fastq.gz",
+        fastq_bc = "fastqs/{sample}/bc.fastq.gz",
         wl = "bc_whitelist.txt",
-        ref = "genomes/genome.fasta.gz",
+        ref = "genomes/genome.fa",
         index = "genomes/genome.index"
     output:
-        "results/{sample}/chromap/alignments_raw.bam"
+        bam = "results/{sample}/chromap/alignments_raw.bam",
+        fifo = temp("tmp/{sample}/chromap.pipe")
     params:
         barcode_dist = lambda w: config["max_barcode_dist"],
         multimapping = config["multimapping"]
     log:
-        chromap = "logs/{sample}/chromap/chromap.log"
+        chromap = "logs/{sample}/chromap/chromap.log",
     threads:
         max_threads
     resources:
@@ -42,10 +43,12 @@ rule chromap:
     conda:
         "../envs/chromap.yaml"
     shell:
+        "mkfifo {output.fifo}; "
+        "samtools view -b -S -o {output.bam} {output.fifo} & "
         "chromap --preset atac --SAM --drop-repetitive-reads {params.multimapping} -q 0 --trim-adapters -t {threads} --bc-error-threshold {params.barcode_dist} "
-        "-x {input.index} -r {input.ref} -1 {input.fastq_1} -2 {input.fastq_2} -o /dev/stdout -b {input.fastq_bc} --barcode-whitelist {input.wl} 2> "
-        "{log.chromap} | "
-        "samtools view -b -S -o {output} -"
+        "-x {input.index} -r {input.ref} -1 {input.fastq_1} -2 {input.fastq_2} -o {output.fifo} -b {input.fastq_bc} --barcode-whitelist {input.wl} 2> "
+        "{log.chromap}"
+        
 
 rule collate_alignments:
     """

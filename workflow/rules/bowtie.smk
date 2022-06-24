@@ -12,8 +12,7 @@ rule match_barcodes:
         fastq2_bc = "results/{sample}/bwt2/R2_bc_full.fastq.gz",
         qc_matching = "results/{sample}/bwt2/barcode_matching_full.tsv"
     params:
-        barcode_dist = lambda w: config["max_barcode_dist"],
-        modality = lambda w: sample_data[w.sample]["modality"]
+        barcode_dist = lambda w: config["max_barcode_dist"]
     threads:
         max_threads
     resources:
@@ -40,7 +39,7 @@ rule trim_adapter:
     threads:
         max_threads
     resources:
-        mem_mb = 1000
+        mem_mb = 10000
     conda:
         "../envs/bwt2.yaml"
     shell:
@@ -57,14 +56,16 @@ rule bowtie_index:
         directory("genomes/bwt2_idx")
     log:
         index = "logs/bwt_idx.log",
+        index_err = "logs/bwt_idx_err.log",
     resources:
         mem_mb = 50000,
         runtime_min = 1440
     conda:
         "../envs/bwt2.yaml"
     shell:
-        "bowtie2-build {input} {output}/index 2>&1 > "
-        "{log.index}"
+        "mkdir -p {output}; "
+        "bowtie2-build {input} {output}/index "
+        "> {log.index} 2> {log.index_err}"
 
 rule bowtie2:
     """
@@ -87,7 +88,7 @@ rule bowtie2:
     conda:
         "../envs/bwt2.yaml"
     shell:
-        "bowtie2 -X 2000 --threads {threads} -x {input.prefix}/index "
+        "bowtie2 -X 2000 --threads {threads} -x {input.index}/index "
         "-1 {input.fastq1} -2 {input.fastq2} --sam-append-comment -k {params.k} 2> {output.qc} | "
         "samtools view -b -S -o {output.bam_raw} -"
 

@@ -17,7 +17,7 @@ max_threads_per_rule: 32
 
 # Common base directory for all input FASTQs 
 # Note: sample-specific sub-directories can be set in samples.tsv
-input_dir: /oak/stanford/groups/akundaje/datasets/scATAC_Casey/
+input_dir: /mnt/lab_data2/atwang/scatac_lite_test/fastq/
 
 # This specifies names of the reads within each sample's FASTQ files
 # r1: first read in pair
@@ -31,7 +31,7 @@ read_names:
   bc: R2
 
 # Final output directory for results
-output_dir: /oak/stanford/groups/akundaje/atwang/scATAC_Casey_processed/
+output_dir: /oak/stanford/groups/akundaje/atwang/scATAC_lite_test_2/
 
 #######
 # Genome Settings
@@ -70,7 +70,7 @@ whitelist_revcomp: True
 # To find out, check if the observed barcodes are longer than the barcodes in the whitelist
 # For no prefix/suffix, use an empty string ''
 bc_prefix: ''
-bc_suffix: GTGTAGAT
+bc_suffix: ''
 
 #######
 # Aligner Settings
