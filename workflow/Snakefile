@@ -121,7 +121,7 @@ rule organize_output_bams:
     conda:
         "envs/fetch.yaml"
     shell:
-        "mkdir -p `dirname {input}`; "
+        "mkdir -p `dirname {output}`; "
         "cp {input} {output}"
 
 rule organize_output_fragments:
@@ -142,6 +142,6 @@ rule organize_output_fragments:
     conda:
         "envs/fetch.yaml"
     shell:
-        "mkdir -p `dirname {input}`; "
+        "mkdir -p `dirname {output.frag}`; "
         "cp {input.frag} {output.frag}; "
         "cp {input.frag_ind} {output.frag_ind}"
