@@ -31,7 +31,7 @@ read_names:
   bc: R2
 
 # Final output directory for results
-output_dir: /oak/stanford/groups/akundaje/atwang/scATAC_lite_test/
+output_dir: /oak/stanford/groups/akundaje/atwang/scATAC_lite_test_2/
 
 #######
 # Genome Settings
