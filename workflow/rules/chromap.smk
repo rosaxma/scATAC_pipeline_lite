@@ -26,7 +26,7 @@ rule chromap:
         fastq_2 = "fastqs/{sample}/r2.fastq.gz",
         fastq_bc = "fastqs/{sample}/bc.fastq.gz",
         wl = "bc_whitelist.txt",
-        ref = "genomes/genome.fasta.gz",
+        ref = "genomes/genome.fa",
         index = "genomes/genome.index"
     output:
         "results/{sample}/chromap/alignments_raw.bam"
