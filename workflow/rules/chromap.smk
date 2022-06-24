@@ -29,13 +29,13 @@ rule chromap:
         ref = "genomes/genome.fa",
         index = "genomes/genome.index"
     output:
-        "results/{sample}/chromap/alignments_raw.bam"
+        bam = "results/{sample}/chromap/alignments_raw.bam",
+        fifo = temp("tmp/{sample}/chromap.pipe")
     params:
         barcode_dist = lambda w: config["max_barcode_dist"],
         multimapping = config["multimapping"]
     log:
         chromap = "logs/{sample}/chromap/chromap.log",
-        fifo = "tmp/{sample}/chromap.pipe"
     threads:
         max_threads
     resources:
@@ -43,10 +43,10 @@ rule chromap:
     conda:
         "../envs/chromap.yaml"
     shell:
-        "mkfifo {log.fifo}; "
-        "samtools view -b -S -o {output} {log.fifo} & "
+        "mkfifo {output.fifo}; "
+        "samtools view -b -S -o {output.bam} {output.fifo} & "
         "chromap --preset atac --SAM --drop-repetitive-reads {params.multimapping} -q 0 --trim-adapters -t {threads} --bc-error-threshold {params.barcode_dist} "
-        "-x {input.index} -r {input.ref} -1 {input.fastq_1} -2 {input.fastq_2} -o /dev/stdout -b {input.fastq_bc} --barcode-whitelist {input.wl} 2> "
+        "-x {input.index} -r {input.ref} -1 {input.fastq_1} -2 {input.fastq_2} -o {output.fifo} -b {input.fastq_bc} --barcode-whitelist {input.wl} 2> "
         "{log.chromap}"
         
 
