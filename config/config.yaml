@@ -31,7 +31,7 @@ read_names:
   bc: R2
 
 # Final output directory for results
-output_dir: /oak/stanford/groups/akundaje/atwang/scATAC_Casey_processed/
+output_dir: /oak/stanford/groups/akundaje/atwang/scATAC_Casey_test/
 
 #######
 # Genome Settings
