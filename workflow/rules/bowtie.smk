@@ -39,7 +39,7 @@ rule trim_adapter:
     threads:
         max_threads
     resources:
-        mem_mb = 1000
+        mem_mb = 10000
     conda:
         "../envs/bwt2.yaml"
     shell:
