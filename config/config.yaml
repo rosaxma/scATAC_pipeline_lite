@@ -62,7 +62,7 @@ whitelist_choice: 10x
 # Whether to reverse complement the whitelist
 # This is dependent on the exact sequencing platform
 # The easiest way to find out is to grep an observed barcode and its reverse complement against the whitelist
-whitelist_revcomp: True
+whitelist_revcomp: False
 
 # A prefix or suffix to add to each barcode in the whitelist
 # If the whitelist is reverse-complemented, this is done after reverse-complementation
