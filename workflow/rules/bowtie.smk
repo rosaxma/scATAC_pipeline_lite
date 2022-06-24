@@ -56,14 +56,16 @@ rule bowtie_index:
         directory("genomes/bwt2_idx")
     log:
         index = "logs/bwt_idx.log",
+        index_err = "logs/bwt_idx_err.log",
     resources:
         mem_mb = 50000,
         runtime_min = 1440
     conda:
         "../envs/bwt2.yaml"
     shell:
-        "bowtie2-build {input} {output}/index 2>&1 > "
-        "{log.index}"
+        "mkdir -p {output}; "
+        "bowtie2-build {input} {output}/index "
+        "> {log.index} 2> {log.index_err}"
 
 rule bowtie2:
     """
