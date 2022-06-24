@@ -88,7 +88,7 @@ rule bowtie2:
     conda:
         "../envs/bwt2.yaml"
     shell:
-        "bowtie2 -X 2000 --threads {threads} -x {input.prefix}/index "
+        "bowtie2 -X 2000 --threads {threads} -x {input.index}/index "
         "-1 {input.fastq1} -2 {input.fastq2} --sam-append-comment -k {params.k} 2> {output.qc} | "
         "samtools view -b -S -o {output.bam_raw} -"
 
