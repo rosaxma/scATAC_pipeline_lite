@@ -7,8 +7,8 @@ configfile:
     "config/config.yaml"
 
 with open("config/samples.tsv") as sample_file:
-    h = "#"
-    while h.startswith("#"):
+    h = ["#"]
+    while h[0].startswith("#"):
         h = sample_file.readline().rstrip('\n').split('\t')
     sample_ind = h.index("Sample")
     lanes_ind = h.index("Lanes")
