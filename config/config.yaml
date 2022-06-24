@@ -79,7 +79,7 @@ bc_suffix: ''
 # Aligner to use
 # One of "chromap" or "bwt2"
 # Chromap is significantly faster but is more memory-intensive
-aligner: bwt2
+aligner: chromap
 
 # Maximum number of locations a read can map to
 # We recommend keeping multi-mapping reads to improve discovery
