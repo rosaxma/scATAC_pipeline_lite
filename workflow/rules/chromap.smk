@@ -44,8 +44,9 @@ rule chromap:
     shell:
         "chromap --preset atac --SAM --drop-repetitive-reads {params.multimapping} -q 0 --trim-adapters -t {threads} --bc-error-threshold {params.barcode_dist} "
         "-x {input.index} -r {input.ref} -1 {input.fastq_1} -2 {input.fastq_2} -o /dev/stdout -b {input.fastq_bc} --barcode-whitelist {input.wl} 2> "
-        "{log.chromap} | "
-        "samtools view -b -S -o {output} -"
+        # "{log.chromap} | "
+        # "samtools view -b -S -o {output} -"
+        "{log.chromap}  "
 
 rule collate_alignments:
     """
