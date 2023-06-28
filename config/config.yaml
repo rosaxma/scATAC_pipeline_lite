@@ -5,7 +5,8 @@
 # The pipeline working directory
 # All relative paths in the pipeline are relative to this
 # By default, use current working directory
-workdir: .
+workdir: /scratch/users/rosaxma/scATAC/
+#workdir: /oak/stanford/groups/engreitz/Users/rosaxma/2207_ENCODE_alignment/ATAC/
 
 # Maximum number of threads per rule
 # Actual number of threads used may be lower depending on runtime arguments
@@ -14,11 +15,11 @@ max_threads_per_rule: 32
 #######
 # Main Input/Output Settings
 #######
-
+sample_table: /oak/stanford/groups/engreitz/Users/rosaxma/github_repos/scATAC_pipeline_lite/config/samples.nova.tsv
 # Common base directory for all input FASTQs 
 # Note: sample-specific sub-directories can be set in samples.tsv
-input_dir: /mnt/lab_data2/atwang/scatac_lite_test/fastq/
-sample_table: /oak/stanford/groups/engreitz/Users/rosaxma/github_repos/scATAC_pipeline_lite/config/samples.tsv
+input_dir: /oak/stanford/groups/engreitz/Users/rosaxma/2301_heart_atlas/sequence_processing_atac/outs/fastq_path/HJW2YDSX5 
+
 # This specifies names of the reads within each sample's FASTQ files
 # r1: first read in pair
 # r2: second read in pair
@@ -31,7 +32,7 @@ read_names:
   bc: R2
 
 # Final output directory for results
-output_dir: /oak/stanford/groups/akundaje/atwang/scATAC_lite_test_2/
+output_dir: /oak/stanford/groups/engreitz/Users/rosaxma/2301_heart_atlas/ATAC/output
 
 #######
 # Genome Settings
@@ -53,16 +54,16 @@ max_barcode_dist: 1
 
 # URLs of barcode whitelists
 whitelist_paths:
-  10x: http://mitra.stanford.edu/kundaje/atwang/atac_whitelists/737K-cratac-v1.txt.gz
-  multiome: http://mitra.stanford.edu/kundaje/atwang/atac_whitelists/737K-arc-v1.txt.gz
-
+#  10x: http://mitra.stanford.edu/kundaje/atwang/atac_whitelists/737K-cratac-v1.txt.gz
+#  multiome: http://mitra.stanford.edu/kundaje/atwang/atac_whitelists/737K-arc-v1.txt.gz
+   multiome: /home/groups/engreitz/Software/cellranger-arc-2.0.0/lib/python/atac/barcodes/737K-arc-v1.txt.gz
 # Barcode whitelist to use for dataset
-whitelist_choice: 10x
+whitelist_choice: multiome
 
 # Whether to reverse complement the whitelist
 # This is dependent on the exact sequencing platform
 # The easiest way to find out is to grep an observed barcode and its reverse complement against the whitelist
-whitelist_revcomp: True
+whitelist_revcomp: TRUE
 
 # A prefix or suffix to add to each barcode in the whitelist
 # If the whitelist is reverse-complemented, this is done after reverse-complementation
@@ -79,7 +80,7 @@ bc_suffix: ''
 # Aligner to use
 # One of "chromap" or "bwt2"
 # Chromap is significantly faster but is more memory-intensive
-aligner: chromap
+aligner: bwt2
 
 # Maximum number of locations a read can map to
 # We recommend keeping multi-mapping reads to improve discovery
