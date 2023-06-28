@@ -18,7 +18,7 @@ max_threads_per_rule: 32
 # Common base directory for all input FASTQs 
 # Note: sample-specific sub-directories can be set in samples.tsv
 input_dir: /mnt/lab_data2/atwang/scatac_lite_test/fastq/
-
+sample_table: /oak/stanford/groups/engreitz/Users/rosaxma/github_repos/scATAC_pipeline_lite/config/samples.tsv
 # This specifies names of the reads within each sample's FASTQ files
 # r1: first read in pair
 # r2: second read in pair
