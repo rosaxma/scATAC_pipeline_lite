@@ -27,7 +27,8 @@ rule sort_alignments:
     threads:
         max_threads
     resources:
-        runtime_min = 480
+        runtime_min = 480,
+        mem_mb = 32000
     conda:
         "../envs/fragments.yaml"
     shell:

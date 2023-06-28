@@ -6,7 +6,7 @@ rule match_barcodes:
         fq_R1 = "fastqs/{sample}/r1.fastq.gz",
         fq_R2 = "fastqs/{sample}/r2.fastq.gz",
         fq_BC = "fastqs/{sample}/bc.fastq.gz",
-        whitelist = "bc_whitelist.txt",
+        whitelist =ancient("bc_whitelist.txt"),
     output: 
         fastq1_bc = "results/{sample}/bwt2/R1_bc_full.fastq.gz",
         fastq2_bc = "results/{sample}/bwt2/R2_bc_full.fastq.gz",
@@ -16,7 +16,8 @@ rule match_barcodes:
     threads:
         max_threads
     resources:
-        mem_mb = 1000
+        mem_mb = 1000,
+	runtime_min=1440
     conda:
         "../envs/bwt2.yaml"
     script:
@@ -39,7 +40,8 @@ rule trim_adapter:
     threads:
         max_threads
     resources:
-        mem_mb = 10000
+        mem_mb = 10000,
+	runtime_min=1440
     conda:
         "../envs/bwt2.yaml"
     shell:
@@ -74,7 +76,7 @@ rule bowtie2:
     input:
         fastq1 = "results/{sample}/bwt2/R1_trim.fastq.gz",
         fastq2 = "results/{sample}/bwt2/R2_trim.fastq.gz",
-        index = "genomes/bwt2_idx",
+        index = ancient("genomes/bwt2_idx"),
     output:
         bam_raw = "results/{sample}/bwt2/raw_collated.bam",
         qc = "results/{sample}/bwt2/bwt2_stats.txt"
@@ -83,7 +85,7 @@ rule bowtie2:
     threads:
         max_threads
     resources:
-        mem_mb = 10000,
+        mem_mb = 20000,
         runtime_min = 1440
     conda:
         "../envs/bwt2.yaml"
@@ -104,7 +106,8 @@ rule filter_multimappers:
         multimapping = config["multimapping"],
         mmp_path = script_path("scripts/assign_multimappers.py")
     resources:
-        mem_mb = 1000
+        mem_mb = 16000,
+        runtime_min=1440
     conda:
         "../envs/bwt2.yaml"
     shell:
@@ -122,6 +125,9 @@ rule remove_duplicates:
     output:
         bam_nodup = "results/{sample}/bwt2/alignments_map_out.bam",
         markdup_stats = "results/{sample}/bwt2/markdup.txt"
+    resources:
+        mem_mb = 32000,
+        runtime_min=1440
     log:
         "logs/{sample}/bwt2/picard.log"
     conda:

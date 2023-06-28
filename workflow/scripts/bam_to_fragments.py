@@ -1,5 +1,6 @@
 import pysam
 
+
 def bam_to_frag(in_path, out_path, shift_plus, shift_minus):
     """
     Convert coordinate-sorted BAM file to a fragment file format, while adding Tn5 coordinate adjustment
@@ -12,14 +13,14 @@ def bam_to_frag(in_path, out_path, shift_plus, shift_minus):
         buf = []
         curr_pos = None
         for read in input:
-            if read.flag & 16 == 16: 
-                continue # ignore reverse (coordinate-wise second) read in pair
-            
+            if read.flag & 16 == 16:
+                continue  # ignore reverse (coordinate-wise second) read in pair
+
             chromosome = read.reference_name
             tlen = read.template_length
             if tlen <= 0:
                 continue
-            
+
             start = read.reference_start + shift_plus
             end = read.reference_start + tlen + shift_minus
             cell_barcode = read.get_tag("CB")
@@ -36,15 +37,16 @@ def bam_to_frag(in_path, out_path, shift_plus, shift_minus):
                 buf.append(data)
                 curr_pos = pos
 
-if __name__ == '__main__':
-    try:
-        in_path, = snakemake.input
-        out_path, = snakemake.output
 
-        shift_plus = snakemake.params['shift_plus']
-        shift_minus = snakemake.params['shift_minus']
+if __name__ == "__main__":
+    try:
+        (in_path,) = snakemake.input
+        (out_path,) = snakemake.output
+
+        shift_plus = snakemake.params["shift_plus"]
+        shift_minus = snakemake.params["shift_minus"]
 
         bam_to_frag(in_path, out_path, shift_plus, shift_minus)
 
     except NameError:
-        bam_to_frag('/dev/stdin', '/dev/stdout', 4, -4)
+        bam_to_frag("/dev/stdin", "/dev/stdout", 4, -4)

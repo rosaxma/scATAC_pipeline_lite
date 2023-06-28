@@ -6,7 +6,7 @@ min_version("7.8.0")
 configfile: 
     "config/config.yaml"
 
-with open("config/samples.tsv") as sample_file:
+with open(config["sample_table"]) as sample_file:
     h = ["#"]
     while h[0].startswith("#"):
         h = sample_file.readline().rstrip('\n').split('\t')
@@ -24,7 +24,6 @@ with open("config/samples.tsv") as sample_file:
         path_template = os.path.join(config["input_dir"], entries[path_ind])
         samples.append(sample)
         sample_data[sample] = (lanes, path_template)
-        
 workdir: 
     config['workdir']
 
@@ -45,9 +44,13 @@ rule all:
     Generate all outputs (default)
     """
     input: 
-        expand(os.path.join(config["output_dir"], "{sample}/alignments_sorted.bam"), sample=samples),
+        #expand(os.path.join(config["output_dir"], "{sample}/alignments_sorted.bam"), sample=samples),
+        expand(os.path.join(config["output_dir"], "{sample}/alignments_sorted.bam.bai"), sample=samples),
+        expand(os.path.join(config["output_dir"], "{sample}/markdup.txt"), sample=samples),
         expand(os.path.join(config["output_dir"], "{sample}/fragments.tsv.gz"), sample=samples),
-        expand(os.path.join(config["output_dir"], "{sample}/fragments.tsv.gz.tbi"), sample=samples)
+        expand(os.path.join(config["output_dir"], "{sample}/fragments.tsv.gz.tbi"), sample=samples),
+	#expand(os.path.join(config["output_dir"], "{sample}/processing_QC/bwt2_stats.txt"),sample=samples),
+	#expand(os.path.join(config["output_dir"], "{sample}/processing_QC/barcode_matching_full.tsv"),sample=samples),
 
 def fetch_fastq(w):
     read_name = config["read_names"][w.read]
@@ -65,7 +68,7 @@ rule organize_fastqs:
         "fastqs/{sample}/{read}.fastq.gz"
     resources:
         mem_mb = 1000,
-        runtime_min = 360
+        runtime_min = 1440
     conda:
         "envs/fetch.yaml"
     shell:
@@ -78,7 +81,8 @@ rule fetch_whitelist:
     output:
         "bc_whitelist.txt"
     params:
-        url = config["whitelist_paths"][config["whitelist_choice"]],
+        #url = config["whitelist_paths"][config["whitelist_choice"]],
+        barcode = config["whitelist_paths"][config["whitelist_choice"]],
         prefix = config["bc_prefix"],
         suffix = config["bc_suffix"],
         rc_command = "tr ACGTacgt TGCAtgca | rev " if config["whitelist_revcomp"] else "cat "
@@ -87,7 +91,7 @@ rule fetch_whitelist:
     conda:
         "envs/fetch.yaml"
     shell:
-        "curl --no-progress-meter -L {params.url} | zcat | {params.rc_command} | "
+        "zcat {params.barcode}| {params.rc_command} | "
         "sed -e 's/^/{params.prefix}/' -e 's/$/{params.suffix}/' > {output}"
 
 rule fetch_genome:
@@ -103,7 +107,7 @@ rule fetch_genome:
     conda:
         "envs/fetch.yaml"
     shell:
-        "curl --no-progress-meter -L {params.url} | zcat -f > {output}"
+        "curl -sS -L {params.url} | zcat -f > {output}"
 
 rule organize_output_bams:
     """
@@ -116,13 +120,48 @@ rule organize_output_bams:
     params:
         url = config["genome"]
     resources:
-        mem_mb = 1000,
+        mem_mb = 16000,
         runtime_min = 480
     conda:
         "envs/fetch.yaml"
     shell:
         "mkdir -p `dirname {output}`; "
         "cp {input} {output}"
+
+rule organize_output_markup:
+    """
+    Organize markup results
+    """
+    input:
+        "results/{sample}/bwt2/markdup.txt"
+    output:
+        os.path.join(config["output_dir"], "{sample}/markdup.txt")
+    resources:
+        mem_mb = 16000,
+        runtime_min = 480
+    conda:
+        "envs/fetch.yaml"
+    shell:
+        "mkdir -p `dirname {output}`; "
+        "cp {input} {output}"
+
+
+rule index_output_bams:
+    """
+    Index output BAM files
+    """
+    input:
+        os.path.join(config["output_dir"], "{sample}/alignments_sorted.bam")
+    output:
+        os.path.join(config["output_dir"], "{sample}/alignments_sorted.bam.bai")
+    resources: 
+        mem_mb=64000,
+        runtime_min=480
+    conda:
+	    "envs/bwt2.yaml"
+    shell:
+	    "samtools index {input}" 
+	
 
 rule organize_output_fragments:
     """
@@ -137,7 +176,7 @@ rule organize_output_fragments:
     params:
         url = config["genome"]
     resources:
-        mem_mb = 1000,
+        mem_mb = 16000,
         runtime_min = 480
     conda:
         "envs/fetch.yaml"
@@ -145,3 +184,52 @@ rule organize_output_fragments:
         "mkdir -p `dirname {output.frag}`; "
         "cp {input.frag} {output.frag}; "
         "cp {input.frag_ind} {output.frag_ind}"
+
+rule get_multimapped_reads:
+    """
+    Get the effects of "filter_multimappers"
+    """
+    input:
+        raw_bam="results/{sample}/bwt2/raw_collated.bam",
+        primary_align_bam="results/{sample}/bwt2/primary_align.bam"
+    output:
+        os.path.join(config["output_dir"], "{sample}/QC/comparison_before_vs_after_filter.txt")
+    resources:
+        mem_mb = 256000,
+        runtime_min = 480
+    conda:
+        "envs/bwt2.yaml"
+    shell:
+        """
+        java -Xms80g -jar /scratch/users/rosaxma/scATAC/.snakemake/conda/6c156abdc2ff10ab9d942563bf922988/share/picard-slim-2.25.7-0/picard.jar CompareSAMs {input.raw_bam} {input.primary_align_bam} O={output}
+        """
+
+
+rule organize_output_qc_files:
+    """
+    Organize all qc outputs
+    """
+    input:
+        qc_mito = "results/{sample}/frac_mito.tsv",
+        qc_bwt2 = "results/{sample}/bwt2/bwt2_stats.txt",
+        adapter_stats = "results/{sample}/bwt2/trim_adapters.txt",
+        bc_qc="results/{sample}/bwt2/barcode_matching_full.tsv"
+    output:
+        mito=os.path.join(config["output_dir"], "{sample}/processing_QC/frac_mito.tsv"),
+        bwt2=os.path.join(config["output_dir"], "{sample}/processing_QC/bwt2_stats.txt"),
+        adapter=os.path.join(config["output_dir"], "{sample}/processing_QC/trim_adapters.txt"),
+        bc=os.path.join(config["output_dir"], "{sample}/processing_QC/barcode_matching_full.tsv"),
+    resources:
+        mem_mb = 16000,
+        runtime_min = 480
+    conda:
+        "envs/fetch.yaml"
+    shell:
+        """
+        cp {input.qc_mito} {output.mito}
+        cp {input.qc_bwt2} {output.bwt2}
+        cp {input.adapter_stats} {output.adapter}
+        cp {input.bc_qc} {output.bc}
+        """
+
+
