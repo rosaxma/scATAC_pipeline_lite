@@ -10,7 +10,7 @@ rule filter_mito:
     params:
         mitochr = lambda w: config["mito_chr"]
     resources:
-        mem_mb = 1000
+        mem_gb = 1
     conda:
         "../envs/fragments.yaml"
     script:
@@ -25,14 +25,14 @@ rule sort_alignments:
     output:
         "results/{sample}/alignments_sorted.bam"
     threads:
-        max_threads
+        max_threads//8
     resources:
-        runtime_min = 480,
-        mem_mb = 32000
+        runtime_min = 8,
+        mem_gb = 16
     conda:
         "../envs/fragments.yaml"
     shell:
-        "samtools sort -@ {threads} -o {output} {input}"
+        "samtools sort -@ $(({threads} * 2)) -o {output} {input}"
 
 rule bam_to_fragments: 
     """
@@ -46,7 +46,7 @@ rule bam_to_fragments:
         shift_plus = config["tn5_shift_plus"],
         shift_minus = config["tn5_shift_minus"]
     resources:
-        mem_mb = 1000
+        mem_gb = 1
     conda:
         "../envs/fragments.yaml"
     script:
@@ -61,7 +61,7 @@ rule compress_fragments:
     output: 
         "results/{sample}/fragments.tsv.gz"
     resources:
-        mem_mb = 1000
+        mem_gb = 1
     conda:
         "../envs/fragments.yaml"
     shell: 
@@ -76,7 +76,7 @@ rule index_fragments:
     output: 
         "results/{sample}/fragments.tsv.gz.tbi"
     resources:
-        mem_mb = 1000
+        mem_gb = 1
     conda:
         "../envs/fragments.yaml"
     shell: 

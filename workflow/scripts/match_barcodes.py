@@ -78,7 +78,7 @@ try:
 
     qc_path = snakemake.output["qc_matching"]
 
-    threads = snakemake.threads
+    threads = snakemake.threads*4
 
     fastqs = {
         "R1": snakemake.input["fq_R1"],

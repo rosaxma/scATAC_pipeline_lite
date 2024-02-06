@@ -5,8 +5,8 @@ rule match_barcodes:
     input: 
         fq_R1 = "fastqs/{sample}/r1.fastq.gz",
         fq_R2 = "fastqs/{sample}/r2.fastq.gz",
-        fq_BC = "fastqs/{sample}/bc.fastq.gz",
-        whitelist =ancient("bc_whitelist.txt"),
+        fq_BC = "fastqs/{sample}/bc.fastq.adapter.removed.gz",
+        whitelist ="bc_whitelist.txt",
     output: 
         fastq1_bc = "results/{sample}/bwt2/R1_bc_full.fastq.gz",
         fastq2_bc = "results/{sample}/bwt2/R2_bc_full.fastq.gz",
@@ -14,10 +14,10 @@ rule match_barcodes:
     params:
         barcode_dist = lambda w: config["max_barcode_dist"]
     threads:
-        max_threads
+        max_threads//4
     resources:
-        mem_mb = 1000,
-	runtime_min=1440
+        mem_gb = 1,
+	runtime_hr=24
     conda:
         "../envs/bwt2.yaml"
     script:
@@ -38,19 +38,19 @@ rule trim_adapter:
         html = "logs/{sample}/bwt2/fastp.html",
         json = "logs/{sample}/bwt2/fastp.json"
     threads:
-        max_threads
+        max_threads//4
     resources:
-        mem_mb = 10000,
-	runtime_min=1440
+        mem_gb = 256,
+        runtime_hr=24
     conda:
         "../envs/bwt2.yaml"
     shell:
         "fastp -i {input.fastq1_bc} -I {input.fastq2_bc} -o {output.fastq1_trim} -O {output.fastq2_trim}"
-        " -h {log.html} -j {log.json} -G -Q -L -w {threads} 2> {output.stats}"
+        " -h {log.html} -j {log.json} -G -Q -L -w $(({threads} * 2)) 2> {output.stats}"
 
 rule bowtie_index:
     """
-    Build bowtie_index
+    Build bowtie_index 
     """
     input:
         "genomes/genome.fa"
@@ -60,8 +60,8 @@ rule bowtie_index:
         index = "logs/bwt_idx.log",
         index_err = "logs/bwt_idx_err.log",
     resources:
-        mem_mb = 50000,
-        runtime_min = 1440
+        mem_gb = 10,
+        runtime_hr = 24
     conda:
         "../envs/bwt2.yaml"
     shell:
@@ -76,17 +76,17 @@ rule bowtie2:
     input:
         fastq1 = "results/{sample}/bwt2/R1_trim.fastq.gz",
         fastq2 = "results/{sample}/bwt2/R2_trim.fastq.gz",
-        index = ancient("genomes/bwt2_idx"),
+        index = "genomes/bwt2_idx",
     output:
+        touch("results/{sample}/bwt2/alignment.done"),
         bam_raw = "results/{sample}/bwt2/raw_collated.bam",
         qc = "results/{sample}/bwt2/bwt2_stats.txt"
     params:
         k = 1 + config["multimapping"]
-    threads:
-        max_threads
+    threads: 32
     resources:
-        mem_mb = 20000,
-        runtime_min = 1440
+        mem_gb = 20,
+        runtime_hr = 24
     conda:
         "../envs/bwt2.yaml"
     shell:
@@ -105,9 +105,10 @@ rule filter_multimappers:
     params:
         multimapping = config["multimapping"],
         mmp_path = script_path("scripts/assign_multimappers.py")
+    threads: 4
     resources:
-        mem_mb = 16000,
-        runtime_min=1440
+        mem_gb = 8,
+        runtime_hr=24
     conda:
         "../envs/bwt2.yaml"
     shell:
@@ -126,8 +127,8 @@ rule remove_duplicates:
         bam_nodup = "results/{sample}/bwt2/alignments_map_out.bam",
         markdup_stats = "results/{sample}/bwt2/markdup.txt"
     resources:
-        mem_mb = 32000,
-        runtime_min=1440
+        mem_gb = 8,
+        runtime_hr=24
     log:
         "logs/{sample}/bwt2/picard.log"
     conda:
