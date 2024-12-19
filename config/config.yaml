@@ -5,9 +5,8 @@
 # The pipeline working directory
 # All relative paths in the pipeline are relative to this
 # By default, use current working directory
-workdir: /scratch/users/rosaxma/scATAC/
-#workdir: /oak/stanford/groups/engreitz/Users/rosaxma/2207_ENCODE_alignment/ATAC/
-
+workdir: /scratch
+scriptdir: workflow/scripts
 # Maximum number of threads per rule
 # Actual number of threads used may be lower depending on runtime arguments
 max_threads_per_rule: 32
@@ -15,10 +14,10 @@ max_threads_per_rule: 32
 #######
 # Main Input/Output Settings
 #######
-sample_table: /oak/stanford/groups/engreitz/Users/rosaxma/github_repos/scATAC_pipeline_lite/config/samples.nova.tsv
+sample_table: config/samples/tsv
 # Common base directory for all input FASTQs 
 # Note: sample-specific sub-directories can be set in samples.tsv
-input_dir: /oak/stanford/groups/engreitz/Users/rosaxma/2301_heart_atlas/sequence_processing_atac/outs/fastq_path/HJW2YDSX5 
+input_dir: ""
 
 # This specifies names of the reads within each sample's FASTQ files
 # r1: first read in pair
@@ -32,7 +31,7 @@ read_names:
   bc: R2
 
 # Final output directory for results
-output_dir: /oak/stanford/groups/engreitz/Users/rosaxma/2301_heart_atlas/ATAC/output
+output_dir: atac_alignment/pool_3
 
 #######
 # Genome Settings
@@ -99,3 +98,5 @@ multimapping: 4
 tn5_shift_plus: 4
 tn5_shift_minus: -4
 
+GenerateSampleSheet:
+        GEX_out: atac_alignment/pool_3
